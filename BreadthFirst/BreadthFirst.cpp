@@ -29,7 +29,26 @@ std::vector<NODE> PathAlgorithms::BreadthFirst::GeneratePath(glm::ivec2 _start, 
 	if (_map.size() == 0)
 	{
 		printf("BreadthFirst requires a node map!\n");
-		return std::vector<NODE>();
+		printf("Generating one...\n");
+
+		int highest = 0;
+		if (_start.y > highest) highest = _start.y;
+		if (_goal.y > highest) highest = _goal.y;
+		_map.resize(highest + 1);
+
+		highest = 0;
+		if (_start.x > highest) highest = _start.x;
+		if (_goal.x > highest) highest = _goal.x;
+
+		for (size_t y = 0; y < _map.size(); y++)
+		{
+			_map.at(y).resize(highest + 1);
+			for (size_t x = 0; x < _map.at(y).size(); x++)
+			{
+				_map.at(y).at(x) = new NODE(glm::ivec2(x, y), false);
+			}
+		};
+		//return std::vector<NODE>();
 	}
 
 	std::queue<NODE*> Q;
@@ -73,9 +92,17 @@ std::vector<NODE> PathAlgorithms::BreadthFirst::GeneratePath(glm::ivec2 _start, 
 			index.push_back(node);
 			if (_map.size() != 0)
 			{
-				if ((size_t(node->pos.y) < _map.size() || size_t(node->pos.x) < _map.at(node->pos.y).size()) && _map.at(node->pos.y).at(node->pos.x)->isObstacle == true)
+				if ((size_t(node->pos.y) < _map.size() && size_t(node->pos.x) < _map.at(node->pos.y).size()))
 				{
-					// It's an obstacle; close it off
+					if (_map.at(node->pos.y).at(node->pos.x)->isObstacle == true)
+					{
+						// It's an obstacle; close it off
+						used_nodes.push_back(node);
+						continue;
+					}
+				}
+				else
+				{
 					used_nodes.push_back(node);
 					continue;
 				}

@@ -118,7 +118,7 @@ std::vector<NODE> PathAlgorithms::AStar::GeneratePath(glm::ivec2 _start, glm::iv
 
 			if (_map.size() != 0)
 			{
-				if ((size_t(neighbour->pos.y) < _map.size() || size_t(neighbour->pos.x) < _map.at(neighbour->pos.y).size()) && _map.at(neighbour->pos.y).at(neighbour->pos.x)->isObstacle == true)
+				if ((size_t(neighbour->pos.y) < _map.size() && size_t(neighbour->pos.x) < _map.at(neighbour->pos.y).size()) && _map.at(neighbour->pos.y).at(neighbour->pos.x)->isObstacle == true)
 				{
 					// It's an obstacle; close it off
 					closedList.push_back(neighbour);
