@@ -3,72 +3,10 @@
 #include "include\SDL2\SDL.h"
 #include "include\ModularPathFinding\AStar\AStar.h"
 #include "include\ModularPathFinding\BreadthFirst\BreadthFirst.h"
+#include "include\ModularPathFinding\BestFirst\BestFirst.h"
 
-Level::Level(glm::ivec2 _size)
-{
-	texture = nullptr;
-	ClearMap(_size);
-}
-
-void Level::ClearMap()
-{
-	for (size_t y = 0; y < map.size(); y++)
-	{
-		for (size_t x = 0; x < map.at(y).size(); x++)
-		{
-			map.at(y).at(x) = 1;
-		}
-	}
-}
-
-void Level::UpdateNodeMap()
-{
-	for (size_t y = 0; y < nmap.size(); y++)
-	{
-		for (size_t x = 0; x < nmap.at(y).size(); x++)
-		{
-			delete nmap.at(y).at(x);
-		}
-		nmap.at(y).clear();
-	}
-	nmap.clear();
-	for (size_t y = 0; y < map.size(); y++)
-	{
-		std::vector<NODE*> temp;
-		for (size_t x = 0; x < map.at(y).size(); x++)
-		{
-			if (map.at(y).at(x) == 1)
-			{
-				temp.push_back(new NODE(glm::ivec2(x, y), true));
-			}
-			else
-			{
-				temp.push_back(new NODE(glm::ivec2(x, y), false));
-			}
-		}
-		nmap.push_back(temp);
-	}
-};
-
-void Level::ClearMap(glm::ivec2 _size)
-{
-	for (size_t y = 0; y < size_t(_size.y); y++)
-	{
-		std::vector<int> temp;
-		map.push_back(temp);
-		for (size_t x = 0; x < size_t(_size.x); x++)
-		{
-			map.at(y).push_back(1);
-		}
-	}
-}
-
-void Level::Reset()
-{
-	rooms.clear();
-	ClearMap();
-	if(texture != nullptr) SDL_DestroyTexture(texture);
-}
+#include "include\GameObject.h"
+#include "include\SDL2\SDL_image.h"
 
 void DungeonGenerator::PlaceRoom(Level* _MAP, glm::ivec2 _pos, glm::ivec2 _size, int _type)
 {
@@ -167,7 +105,7 @@ void DungeonGenerator::ConnectRooms(Level* _MAP)
 	// for every room (barring the last one
 	for (size_t i = 0; i < (_MAP->rooms.size() - 1); i++)
 	{
-		std::vector<NODE> path = pathfinder->GeneratePath(_MAP->rooms.at(i).pos, _MAP->rooms.at(i + 1).pos, tempnodearray, false);
+		std::vector<NODE> path = pathfinder->GeneratePath(_MAP->rooms.at(i).pos, _MAP->rooms.at(i + 1).pos + (_MAP->rooms.at(i + 1).size / 2), tempnodearray, false);
 		for each (NODE var in path)
 		{
 			_MAP->map.at(var.pos.y).at(var.pos.x) = 0;
@@ -188,7 +126,17 @@ void DungeonGenerator::ConnectRooms(Level* _MAP)
 
 void DungeonGenerator::GenerateTexture(SDL_Renderer* _renderer, Level* _MAP)
 {
-	_MAP->texture = SDL_CreateTexture(_renderer, NULL, SDL_TEXTUREACCESS_TARGET, 640, 480);
+	SDL_Texture* floor = IMG_LoadTexture(_renderer, "./floor.png");
+	SDL_Texture* wall = IMG_LoadTexture(_renderer, "./wall.png");
+	SDL_Texture* randomobjects = IMG_LoadTexture(_renderer, "./objects.png");
+
+	_MAP->texture = SDL_CreateTexture(_renderer, NULL, SDL_TEXTUREACCESS_TARGET, _MAP->map.at(0).size() * 16, _MAP->map.size() * 16);
+
+	_MAP->texture_rect = new SDL_Rect();
+	SDL_QueryTexture(_MAP->texture, NULL, NULL, &_MAP->texture_rect->w, &_MAP->texture_rect->h);
+	_MAP->texture_rect->h *= 3;
+	_MAP->texture_rect->w *= 3;
+
 	SDL_SetRenderTarget(_renderer, _MAP->texture);
 	SDL_SetRenderDrawColor(_renderer, 255, 255, 255, 255);
 	SDL_RenderClear(_renderer);
@@ -196,21 +144,56 @@ void DungeonGenerator::GenerateTexture(SDL_Renderer* _renderer, Level* _MAP)
 	{
 		for (size_t x = 0; x < _MAP->map.at(y).size(); x++)
 		{
+
+
+			int sprite_size = 16;
+			SDL_Rect temp = { 0 + (sprite_size * (int)x) ,  0 + (sprite_size * (int)y), sprite_size,sprite_size };
 			if (_MAP->map.at(y).at(x) != 1)
 			{
-				SDL_Rect temp = { 8 + (8 * (int)x) ,  8 + (8 * (int)y), 8,8 };
-				SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 255);
-				SDL_RenderFillRect(_renderer, &temp);
 
-				temp.x = 9 + (8 * x);  //x
-				temp.y = 9 + (8 * y);	//y
-				temp.w = 6;			//w
-				temp.h = 6;			//h
-				SDL_SetRenderDrawColor(_renderer, 255, 255, 0, 255);
-				SDL_RenderFillRect(_renderer, &temp);
+				SDL_RenderCopy(_renderer, floor, NULL, &temp);
+				if (rand() % 30 == 0)
+				{
+					//SDL_Rect srctemp = { 16 * 0, 0, 16,16 };
+					_MAP->scene_graph_ptr->push_back(new GameObject(glm::ivec2(x, y), _MAP, "Treasure"));
+					_MAP->scene_graph_ptr->back()->SetActiveSprite(randomobjects);
+					//SDL_RenderCopy(_renderer, randomobjects, &srctemp, &temp);
+				}
+				//SDL_RenderFillRect(_renderer, &temp);
 			}
+			else
+			{
+				uint8_t type = 0;
+
+				if ((y - 1) != SIZE_MAX && (y + 1) < _MAP->map.size())
+				{
+					if (_MAP->map.at(y-1).at(x) == 1 && _MAP->map.at(y + 1).at(x) == 0)
+					{
+						type = 2;
+					}
+					else if (_MAP->map.at(y - 1).at(x) == 0 && _MAP->map.at(y + 1).at(x) == 0)
+					{
+						type = 0;
+					}
+					else if (_MAP->map.at(y - 1).at(x) == 1 && _MAP->map.at(y + 1).at(x) == 1)
+					{
+						type = 1;
+					}
+					else if (_MAP->map.at(y - 1).at(x) == 0 && _MAP->map.at(y + 1).at(x) == 1)
+					{
+						type = 3;
+					}
+				}
+
+				SDL_Rect srctemp = { 16 * type, 0, 16,16 };
+				SDL_RenderCopy(_renderer, wall, &srctemp, &temp);
+			}
+
 		}
 	}
 	SDL_SetRenderTarget(_renderer, NULL);
+	SDL_DestroyTexture(floor);
+	SDL_DestroyTexture(wall);
+	//SDL_DestroyTexture(randomobjects);
 	return;
 }

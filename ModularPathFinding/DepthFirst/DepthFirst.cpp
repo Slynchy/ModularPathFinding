@@ -8,27 +8,6 @@ std::vector<NODE> PathAlgorithms::DepthFirst::GeneratePath(glm::ivec2 _start, gl
 	std::vector<NODE*> index;
 	Q.push(new NODE(_start, false));
 
-	if (_map.size() == 0)
-	{
-		int highest = 0;
-		if (_start.y > highest) highest = _start.y;
-		if (_goal.y > highest) highest = _goal.y;
-		_map.resize(highest);
-
-		highest = 0;
-		if (_start.x > highest) highest = _start.x;
-		if (_goal.x > highest) highest = _goal.x;
-
-		for (size_t y = 0; y < _map.size(); y++)
-		{
-			_map.at(y).resize(highest);
-			for (size_t x = 0; x < _map.at(y).size(); x++)
-			{
-				_map.at(y).at(x) = new NODE(glm::ivec2(x, y), false);
-			}
-		};
-	}
-
 	while (Q.size() != 0)
 	{
 		NODE* current = Q.front();

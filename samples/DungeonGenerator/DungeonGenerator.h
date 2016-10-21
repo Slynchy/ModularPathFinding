@@ -2,33 +2,7 @@
 
 #include <vector>
 #include <glm\glm.hpp>
-
-struct NODE;
-
-struct ROOM
-{
-	glm::ivec2 pos;
-	glm::ivec2 size;
-};
-
-struct SDL_Texture;
-struct SDL_Renderer;
-
-class Level
-{
-protected:
-	void ClearMap();
-	void ClearMap(glm::ivec2 _size);
-private:
-public:
-	std::vector<std::vector<int>> map;
-	std::vector<std::vector<NODE*>> nmap;
-	std::vector<ROOM> rooms;
-	SDL_Texture* texture;
-	Level(glm::ivec2 _size);
-	void UpdateNodeMap();
-	void Reset();
-};
+#include "include\Level.h"
 
 class DungeonGenerator
 {

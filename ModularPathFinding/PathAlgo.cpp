@@ -77,7 +77,57 @@ NODE* PathAlgorithm::PositionExistsInVector(std::vector<NODE*>& _vec, NODE* _pos
 	return nullptr;
 };
 
-size_t PathAlgorithm::GetLowestFCost(std::vector<NODE*>& list)
+//DEPRECATED
+size_t PathAlgorithm::GetLowestFCost(std::stack<NODE*> list)
+{
+	const size_t max = list.size();
+
+	// The current lowest value, which is the first at the moment
+	float lowest = list.top()->f;
+
+	// Counter keeps track of the current index
+	size_t counter = 0;
+
+	std::size_t index = 0;
+	std::size_t i = 0;
+
+	// if only one or less elements in vector, lowest is obviously that
+	if (max <= 1) return index;
+
+	while (++counter != max) {
+		NODE* current = list.top();
+		list.pop();
+		if (current->f < lowest) {
+			lowest = current->f;
+			index = i;
+		}
+		++i;
+	}
+	return index;
+};
+
+NODE* PathAlgorithm::GetLowestFCost(std::vector<NODE*>& list, size_t& position)
+{
+	float lowest = FLT_MAX;
+	NODE* current = nullptr;
+	size_t current_pos = 0;
+	position = 0;
+	for each (NODE* var in list)
+	{
+		if (var->f < lowest)
+		{
+			lowest = var->f;
+			current = var;
+			current_pos = position;
+		}
+		position++;
+	}
+	position = current_pos;
+	return current;
+};
+
+//DEPRECATED
+size_t PathAlgorithm::GetLowestFCost(std::vector<NODE*> list)
 {
 	const size_t max = list.size();
 

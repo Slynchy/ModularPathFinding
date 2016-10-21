@@ -1,6 +1,10 @@
 #ModularPathFinding Changelog
 ##NOTE: I hardly ever remember what I add per version, so it may be inaccurate
 
+#### v0.3.0
+- Added Best-First algorithm
+- Removed AStar algorithm, pending a rewrite
+
 #### v0.2.0
 - Added Depth-First algorithm
 - Massively improved existing algorithms to be real-time

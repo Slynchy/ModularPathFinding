@@ -3,31 +3,6 @@
 
 std::vector<NODE> PathAlgorithms::BreadthFirst::GeneratePath(glm::ivec2 _start, glm::ivec2 _goal, std::vector<std::vector<NODE*>> _map, bool _allowDiagonal)
 {
-	if (_map.size() == 0)
-	{
-		printf("BreadthFirst requires a node map!\n");
-		printf("Generating one...\n");
-
-		int highest = 0;
-		if (_start.y > highest) highest = _start.y;
-		if (_goal.y > highest) highest = _goal.y;
-		_map.resize(highest);
-
-		highest = 0;
-		if (_start.x > highest) highest = _start.x;
-		if (_goal.x > highest) highest = _goal.x;
-
-		for (size_t y = 0; y < _map.size(); y++)
-		{
-			_map.at(y).resize(highest);
-			for (size_t x = 0; x < _map.at(y).size(); x++)
-			{
-				_map.at(y).at(x) = new NODE(glm::ivec2(x, y), false);
-			}
-		};
-		//return std::vector<NODE>();
-	}
-
 	std::queue<NODE*> Q;
 	std::vector<glm::ivec2> used_nodes;
 	std::vector<NODE*> index; 

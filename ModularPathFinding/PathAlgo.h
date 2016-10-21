@@ -2,6 +2,7 @@
 #define PATHALGO_H
 
 #include <vector>
+#include <stack>
 
 #include <glm/glm.hpp>
 
@@ -20,7 +21,11 @@ protected:
 		std::vector<NODE*>& closedList = std::vector<NODE*>(),
 		std::vector<glm::ivec2>& openList_vec = std::vector<glm::ivec2>(),
 		std::vector<glm::ivec2>& closedList_vec = std::vector<glm::ivec2>());
-	virtual size_t GetLowestFCost(std::vector<NODE*>& list);
+	virtual NODE* GetLowestFCost(std::vector<NODE*>& list, size_t& position);
+
+	//DEPRECATED
+	virtual size_t GetLowestFCost(std::vector<NODE*> list);
+	virtual size_t GetLowestFCost(std::stack<NODE*> list);
 
 private:
 public:
