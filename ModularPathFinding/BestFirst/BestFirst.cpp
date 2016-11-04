@@ -19,13 +19,16 @@ std::vector<NODE> PathAlgorithms::BestFirst::GeneratePath(glm::ivec2 _start, glm
 		closed.push_back(current->pos);
 
 		std::vector<NODE*> neighbours = GetNeighbors(current, &_map, _allowDiagonal);
+		for each (NODE* var in neighbours)
+		{
+			index.push_back(var);
+		}
 
 		for each (NODE* neighbour in neighbours)
 		{
 			neighbour->g = current->g + 1.0f;
 			neighbour->h = glm::distance(glm::vec2(_goal), glm::vec2(neighbour->pos));
 			neighbour->f = neighbour->g + neighbour->h;
-			index.push_back(neighbour);
 
 			if (neighbour->pos == _goal)
 			{

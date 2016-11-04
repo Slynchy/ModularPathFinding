@@ -1,6 +1,12 @@
 #ModularPathFinding Changelog
 ##NOTE: I hardly ever remember what I add per version, so it may be inaccurate
 
+#### v0.5.0
+- Re-added AStar algorithm
+- Improved base class to have more common functionality/variables
+- Added support for dynamic obstructions to AStar
+	+ Pending addition to other algos
+
 #### v0.3.0
 - Added Best-First algorithm
 - Removed AStar algorithm, pending a rewrite

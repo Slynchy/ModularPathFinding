@@ -5,7 +5,7 @@
 #include <algorithm>
 #include "../PathAlgo.h"
 
-#include <glm/glm.hpp>
+#include "../../glm/glm.hpp"
 
 struct NODE;
 

@@ -6,6 +6,20 @@ PathAlgorithm::~PathAlgorithm()
 	//path.clear();
 }
 
+NODE* PathAlgorithm::PositionExistsInMap(PathAlgorithm::OpenList& m, NODE* _node)
+{
+	for (auto iterator = m.begin(); iterator != m.end(); iterator++) {
+		// iterator->first = key
+		// iterator->second = value
+		// Repeat if you also want to iterate through the second map.
+		if (iterator->first->pos == _node->pos)
+		{
+			return iterator->first;
+		}
+	}
+	return nullptr;
+};
+
 std::vector<NODE*> PathAlgorithm::GetNeighbors(NODE* start, std::vector<std::vector<NODE*>>* _nmap, bool _allowDiagonal)
 {
 	std::vector<NODE*> neighbours;
@@ -30,13 +44,20 @@ std::vector<NODE*> PathAlgorithm::GetNeighbors(NODE* start, std::vector<std::vec
 	return neighbours;
 }
 
+void PathAlgorithm::SetAIPositions(std::vector<glm::ivec2*> _positions)
+{
+	obstructions = _positions;
+}
+
 std::vector<NODE> PathAlgorithm::CleanUp(NODE* current, std::vector<NODE*>& index, std::vector<NODE*>& openList, std::vector<NODE*>& closedList, std::vector<glm::ivec2>& openList_vec, std::vector<glm::ivec2>& closedList_vec)
 {
 	bool endreached = false;
 	std::vector<NODE> result;
 	while (endreached == false)
 	{
-		result.push_back(*current);
+		NODE temp = *current;
+		temp.parent = nullptr;
+		result.push_back(temp);
 		if ((current->parent == nullptr))
 		{
 			endreached = true;
@@ -47,9 +68,9 @@ std::vector<NODE> PathAlgorithm::CleanUp(NODE* current, std::vector<NODE*>& inde
 			current = current->parent;
 		}
 	}
-	for each (NODE* var in index)
+	for (size_t i = 0; i < index.size(); i++)
 	{
-		delete var;
+		delete index.at(i);
 	}
 	openList.clear();
 	closedList.clear();

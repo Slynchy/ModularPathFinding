@@ -1,15 +1,18 @@
 #include "DungeonGenerator.h"
-#include "include\Node.h"
-#include "include\SDL2\SDL.h"
-#include "include\ModularPathFinding\AStar\AStar.h"
-#include "include\ModularPathFinding\BreadthFirst\BreadthFirst.h"
-#include "include\ModularPathFinding\BestFirst\BestFirst.h"
+#include "../ModularPathFinding/Node.h"
+#include "../SDL2/SDL.h"
+#include "../SDL2/SDL_image.h"
+#include "../ModularPathFinding/AStar/AStar.h"
+#include "../ModularPathFinding/BreadthFirst/BreadthFirst.h"
+#include "../ModularPathFinding/BestFirst/BestFirst.h"
 
-#include "include\GameObject.h"
-#include "include\SDL2\SDL_image.h"
+#include "../AtlaEngine/GameObject/GameObject.h"
+
+#include "../AtlaEngine/Atla.h"
 
 void DungeonGenerator::PlaceRoom(Level* _MAP, glm::ivec2 _pos, glm::ivec2 _size, int _type)
 {
+	SDL_Texture* randomobjects = _MAP->engine->RMANAGER->GetTexture("./graphics/objects.png", _MAP->engine->RENDERER);
 	std::vector<std::vector<int>>* MAP = &_MAP->map;
 	for (size_t y = 0; y < size_t(_size.y); y++)
 	{
@@ -21,6 +24,8 @@ void DungeonGenerator::PlaceRoom(Level* _MAP, glm::ivec2 _pos, glm::ivec2 _size,
 	ROOM tempRoom;
 	tempRoom.pos = _pos;
 	tempRoom.size = _size;
+	GameObject* treasure = new GameObject(_pos + glm::ivec2(rand() % _size.x, rand() % _size.y), _MAP, "Treasure");
+	treasure->SetActiveSprite(randomobjects);
 	_MAP->rooms.push_back(tempRoom);
 }
 
@@ -80,6 +85,11 @@ void DungeonGenerator::PopulateWithRooms(Level* _MAP, unsigned int _roomcount)
 			PlaceRoom(_MAP, breakout, size, 0);
 
 			roomCount++;
+			if (roomCount == (_roomcount - 1))
+			{
+				GameObject* exit = new GameObject(glm::ivec2(_MAP->rooms.back().pos.x + (rand() % _MAP->rooms.back().size.x), _MAP->rooms.back().pos.y + (rand() % _MAP->rooms.back().size.y)), _MAP, "Exit");
+				exit->SetActiveSprite(_MAP->engine->RMANAGER->GetTexture("./graphics/stairs_exit.png", _MAP->engine->RENDERER));
+			}
 		};
 	};
 }
@@ -126,11 +136,11 @@ void DungeonGenerator::ConnectRooms(Level* _MAP)
 
 void DungeonGenerator::GenerateTexture(SDL_Renderer* _renderer, Level* _MAP)
 {
-	SDL_Texture* floor = IMG_LoadTexture(_renderer, "./floor.png");
-	SDL_Texture* wall = IMG_LoadTexture(_renderer, "./wall.png");
-	SDL_Texture* randomobjects = IMG_LoadTexture(_renderer, "./objects.png");
+	SDL_Texture* floor = _MAP->engine->RMANAGER->GetTexture("./graphics/floor.png", _renderer);
+	SDL_Texture* wall = _MAP->engine->RMANAGER->GetTexture("./graphics/wall.png", _renderer);
 
 	_MAP->texture = SDL_CreateTexture(_renderer, NULL, SDL_TEXTUREACCESS_TARGET, _MAP->map.at(0).size() * 16, _MAP->map.size() * 16);
+	SDL_SetTextureBlendMode(_MAP->texture, SDL_BLENDMODE_BLEND);
 
 	_MAP->texture_rect = new SDL_Rect();
 	SDL_QueryTexture(_MAP->texture, NULL, NULL, &_MAP->texture_rect->w, &_MAP->texture_rect->h);
@@ -138,8 +148,9 @@ void DungeonGenerator::GenerateTexture(SDL_Renderer* _renderer, Level* _MAP)
 	_MAP->texture_rect->w *= 3;
 
 	SDL_SetRenderTarget(_renderer, _MAP->texture);
-	SDL_SetRenderDrawColor(_renderer, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
 	SDL_RenderClear(_renderer);
+
 	for (size_t y = 0; y < _MAP->map.size(); y++)
 	{
 		for (size_t x = 0; x < _MAP->map.at(y).size(); x++)
@@ -150,38 +161,23 @@ void DungeonGenerator::GenerateTexture(SDL_Renderer* _renderer, Level* _MAP)
 			SDL_Rect temp = { 0 + (sprite_size * (int)x) ,  0 + (sprite_size * (int)y), sprite_size,sprite_size };
 			if (_MAP->map.at(y).at(x) != 1)
 			{
+				int16_t type = DetermineFloorType(x, y, _MAP);
+				SDL_Rect srctemp = { 16 * type, 0, 16, 16 };
 
-				SDL_RenderCopy(_renderer, floor, NULL, &temp);
-				if (rand() % 30 == 0)
-				{
-					//SDL_Rect srctemp = { 16 * 0, 0, 16,16 };
-					_MAP->scene_graph_ptr->push_back(new GameObject(glm::ivec2(x, y), _MAP, "Treasure"));
-					_MAP->scene_graph_ptr->back()->SetActiveSprite(randomobjects);
-					//SDL_RenderCopy(_renderer, randomobjects, &srctemp, &temp);
-				}
-				//SDL_RenderFillRect(_renderer, &temp);
+				SDL_RenderCopy(_renderer, floor, &srctemp, &temp);
 			}
 			else
 			{
-				uint8_t type = 0;
+				int8_t type = -1;
 
 				if ((y - 1) != SIZE_MAX && (y + 1) < _MAP->map.size())
 				{
-					if (_MAP->map.at(y-1).at(x) == 1 && _MAP->map.at(y + 1).at(x) == 0)
-					{
-						type = 2;
-					}
-					else if (_MAP->map.at(y - 1).at(x) == 0 && _MAP->map.at(y + 1).at(x) == 0)
+					if (
+						_MAP->map.at(y - 1).at(x) == 0 &&		//    0			
+						_MAP->map.at(y).at(x) == 1			    //  x 1 x
+						)										//    x	
 					{
 						type = 0;
-					}
-					else if (_MAP->map.at(y - 1).at(x) == 1 && _MAP->map.at(y + 1).at(x) == 1)
-					{
-						type = 1;
-					}
-					else if (_MAP->map.at(y - 1).at(x) == 0 && _MAP->map.at(y + 1).at(x) == 1)
-					{
-						type = 3;
 					}
 				}
 
@@ -192,8 +188,137 @@ void DungeonGenerator::GenerateTexture(SDL_Renderer* _renderer, Level* _MAP)
 		}
 	}
 	SDL_SetRenderTarget(_renderer, NULL);
-	SDL_DestroyTexture(floor);
-	SDL_DestroyTexture(wall);
-	//SDL_DestroyTexture(randomobjects);
 	return;
+}
+
+int16_t DungeonGenerator::DetermineFloorType(int x, int y, Level* _MAP)
+{
+	int16_t type = -1;
+
+	enum floortype
+	{
+		HORIZ,
+		VERT,
+		TOP_RIGHT_CORN,
+		TOP_LEFT_CORN,
+		BOTTOM_RIGHT_CORN,
+		BOTTOM_LEFT_CORN,
+		BOTTOMWALL,
+		TOPWALL,
+		FLOOR,
+		CROSS_SECTION,
+		LEFTWALL,
+		RIGHTWALL
+	};
+
+	// if y-1 is not less than zero
+	// if y+1 is less than the y-size of the map
+	if (
+		(y - 1) != SIZE_MAX &&
+		size_t(y + 1) < _MAP->map.size() &&
+		(x - 1) != SIZE_MAX &&
+		size_t(x + 1) < _MAP->map.at(y).size()
+		)
+	{
+		if (
+			_MAP->map.at(y - 1).at(x) == 1 &&		//    1
+			_MAP->map.at(y + 1).at(x) == 0 &&		//  0 x 0
+			_MAP->map.at(y).at(x + 1) == 0 &&		//    0
+			_MAP->map.at(y).at(x - 1) == 0
+			)
+		{
+			type = BOTTOMWALL;
+		}
+		else if (
+			_MAP->map.at(y - 1).at(x) == 0 &&		//    0
+			_MAP->map.at(y + 1).at(x) == 1 &&		//  0 x 0
+			_MAP->map.at(y).at(x + 1) == 0 &&		//    1
+			_MAP->map.at(y).at(x - 1) == 0
+			)
+		{
+			type = TOPWALL;
+		}
+		else if (
+			_MAP->map.at(y - 1).at(x) == 0 &&		//    0
+			_MAP->map.at(y + 1).at(x) == 0 &&		//  0 x 0
+			_MAP->map.at(y).at(x + 1) == 0 &&		//    0
+			_MAP->map.at(y).at(x - 1) == 0
+			)
+		{
+			type = FLOOR;
+		}
+		else if (
+			_MAP->map.at(y - 1).at(x) == 1 &&		//    1
+			_MAP->map.at(y + 1).at(x) == 1 &&		//  0 x 0
+			_MAP->map.at(y).at(x + 1) == 0 &&		//    1
+			_MAP->map.at(y).at(x - 1) == 0
+			)
+		{
+			type = HORIZ;
+		}
+		else if (
+			_MAP->map.at(y - 1).at(x) == 0 &&		//    0
+			_MAP->map.at(y + 1).at(x) == 0 &&		//  1 x 1
+			_MAP->map.at(y).at(x + 1) == 1 &&		//    0
+			_MAP->map.at(y).at(x - 1) == 1
+			)
+		{
+			type = VERT;
+		}
+		else if (
+			_MAP->map.at(y - 1).at(x) == 1 &&		//    1
+			_MAP->map.at(y + 1).at(x) == 0 &&		//  0 x 1
+			_MAP->map.at(y).at(x + 1) == 1 &&		//    0
+			_MAP->map.at(y).at(x - 1) == 0
+			)
+		{
+			type = TOP_RIGHT_CORN;
+		}
+		else if (
+			_MAP->map.at(y - 1).at(x) == 1 &&		//    1
+			_MAP->map.at(y + 1).at(x) == 0 &&		//  1 x 0
+			_MAP->map.at(y).at(x + 1) == 0 &&		//    0
+			_MAP->map.at(y).at(x - 1) == 1
+			)
+		{
+			type = TOP_LEFT_CORN;
+		}
+		else if (
+			_MAP->map.at(y - 1).at(x) == 0 &&		//    0
+			_MAP->map.at(y + 1).at(x) == 1 &&		//  0 x 1
+			_MAP->map.at(y).at(x + 1) == 1 &&		//    1
+			_MAP->map.at(y).at(x - 1) == 0
+			)
+		{
+			type = BOTTOM_RIGHT_CORN;
+		}
+		else if (
+			_MAP->map.at(y - 1).at(x) == 0 &&		//    0
+			_MAP->map.at(y + 1).at(x) == 1 &&		//  1 x 0
+			_MAP->map.at(y).at(x + 1) == 0 &&		//    1
+			_MAP->map.at(y).at(x - 1) == 1
+			)
+		{
+			type = BOTTOM_LEFT_CORN;
+		}
+		else if (
+			_MAP->map.at(y - 1).at(x) == 0 &&		//    0
+			_MAP->map.at(y + 1).at(x) == 0 &&		//  1 x 0
+			_MAP->map.at(y).at(x + 1) == 0 &&		//    0
+			_MAP->map.at(y).at(x - 1) == 1
+			)
+		{
+			type = LEFTWALL;
+		}
+		else if (
+			_MAP->map.at(y - 1).at(x) == 0 &&		//    0
+			_MAP->map.at(y + 1).at(x) == 0 &&		//  0 x 1
+			_MAP->map.at(y).at(x + 1) == 1 &&		//    0
+			_MAP->map.at(y).at(x - 1) == 0
+			)
+		{
+			type = RIGHTWALL;
+		};
+	}
+	return type;
 }
