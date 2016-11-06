@@ -26,6 +26,7 @@ protected:
 		std::vector<glm::ivec2>& openList_vec = std::vector<glm::ivec2>(),
 		std::vector<glm::ivec2>& closedList_vec = std::vector<glm::ivec2>());
 	virtual NODE* GetLowestFCost(std::vector<NODE*>& list, size_t& position);
+	virtual NODE* GetLowestGCost(std::vector<NODE*>& list, size_t& position);
 	std::vector<glm::ivec2*> obstructions;
 
 	//DEPRECATED

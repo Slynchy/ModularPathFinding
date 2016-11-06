@@ -127,6 +127,26 @@ size_t PathAlgorithm::GetLowestFCost(std::stack<NODE*> list)
 	return index;
 };
 
+NODE* PathAlgorithm::GetLowestGCost(std::vector<NODE*>& list, size_t& position)
+{
+	float lowest = FLT_MAX;
+	NODE* current = nullptr;
+	size_t current_pos = 0;
+	position = 0;
+	for each (NODE* var in list)
+	{
+		if (var->g < lowest)
+		{
+			lowest = var->g;
+			current = var;
+			current_pos = position;
+		}
+		position++;
+	}
+	position = current_pos;
+	return current;
+};
+
 NODE* PathAlgorithm::GetLowestFCost(std::vector<NODE*>& list, size_t& position)
 {
 	float lowest = FLT_MAX;

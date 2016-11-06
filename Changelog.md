@@ -1,5 +1,9 @@
 #ModularPathFinding Changelog
-##NOTE: I hardly ever remember what I add per version, so it may be inaccurate
+##NOTE: I hardly ever remember what I add per version, so beware of inaccuracies
+
+#### v0.6.0
+- Added AStar Epsilon
+	+ Does not yet support configurable secondary heuristics
 
 #### v0.5.0
 - Re-added AStar algorithm

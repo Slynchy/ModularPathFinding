@@ -1,14 +1,49 @@
-#include "AStar.h"
+#include "AStarEpsilon.h"
 #include "../Node.h"
 
-#include <map>
+#include <queue>
 
-float PathAlgorithms::AStar::heuristic(glm::ivec2 start, glm::ivec2 goal)
+float PathAlgorithms::AStarEpsilon::heuristic(glm::ivec2 start, glm::ivec2 goal)
 {
 	return glm::distance(glm::vec2(start), glm::vec2(goal));
 }
 
-bool PathAlgorithms::AStar::PositionExistsInVector(std::vector<NODE*>& _vec, NODE* _pos, size_t &position)
+// Exclusive to A*epsilon
+// Configure to suit your needs
+NODE* PathAlgorithms::AStarEpsilon::GetBestNode(std::vector<NODE*>& list, size_t& position)
+{
+	// Get (one of) the lowest F cost as a starting point
+	NODE* best = GetLowestFCost(list, position);
+
+	// Init the list of suitable nodes
+	std::vector<NODE*> test;
+	std::vector<size_t> positions;
+	//std::priority_queue<NODE*> test;
+
+	// Iterate through the list and find any within the threshold
+	size_t counter = 0;
+	for each (NODE* var in list)
+	{
+		if (var->f <= (best->f + threshold))
+		{
+			//test.push(var);
+			test.push_back(var);
+			positions.push_back(counter);
+		}
+		counter++;
+	}
+
+	// Here, select your criteria for picking one
+	// I'm going to get the lowest G cost
+	size_t temp;
+	best = GetLowestGCost(test, temp);
+	position = positions.at(temp);
+
+	//return test.top();
+	return best;
+}
+
+bool PathAlgorithms::AStarEpsilon::PositionExistsInVector(std::vector<NODE*>& _vec, NODE* _pos, size_t &position)
 {
 	std::vector<size_t> positions;
 	for (size_t i = 0; i < _vec.size(); i++)
@@ -24,7 +59,6 @@ bool PathAlgorithms::AStar::PositionExistsInVector(std::vector<NODE*>& _vec, NOD
 		return false;
 	if (positions.size() > 1)
 	{
-		//printf("naus");
 		for (size_t i = 1; i < positions.size(); i++)
 		{
 			_vec.erase(_vec.begin() + positions.at(i));
@@ -34,7 +68,7 @@ bool PathAlgorithms::AStar::PositionExistsInVector(std::vector<NODE*>& _vec, NOD
 	return true;
 };
 
-std::vector<NODE> PathAlgorithms::AStar::GeneratePath(glm::ivec2 _start, glm::ivec2 _goal, std::vector<std::vector<NODE*>> _map, bool _allowDiagonal)
+std::vector<NODE> PathAlgorithms::AStarEpsilon::GeneratePath(glm::ivec2 _start, glm::ivec2 _goal, std::vector<std::vector<NODE*>> _map, bool _allowDiagonal)
 {
 	// Init the open/closed lists
 	std::vector<NODE*> open;
@@ -55,7 +89,7 @@ std::vector<NODE> PathAlgorithms::AStar::GeneratePath(glm::ivec2 _start, glm::iv
 	{
 		// Get lowest FCost then erase it from open + push it to closed
 		size_t position;
-		NODE* current = GetLowestFCost(open, position);
+		NODE* current = PathAlgorithms::AStarEpsilon::GetBestNode(open, position);
 		open.erase(open.begin() + position);
 		closed.push_back(current);
 		
@@ -75,7 +109,6 @@ std::vector<NODE> PathAlgorithms::AStar::GeneratePath(glm::ivec2 _start, glm::iv
 		{
 			closed.clear();
 			open.clear();
-			//obstructions.clear();
 			return CleanUp(current, index); 
 		}
 		else

@@ -5,8 +5,11 @@ A C++ library for plug-play path finding with grid-based maps
 Simply bundle GLM with your application, include "Node.h" + the header for the algorithm you wish to use, and instantiate it like so:
 
 ~~~~
+	// Instantiate the pathfinder
 	PathAlgorithms::BreadthFirst* pathfinder = new PathAlgorithms::BreadthFirst();
-	std::vector<std::vector<NODE*>> tempnodearray; // This would be your nodemap, but here we're going to make one
+	
+	// This would be your nodemap, but here we're going to make one
+	std::vector<std::vector<NODE*>> tempnodearray; 
 	for (size_t y = 0; y < _MAP->map.size(); y++)
 	{
 		std::vector<NODE*> temporary;
@@ -16,7 +19,12 @@ Simply bundle GLM with your application, include "Node.h" + the header for the a
 		}
 		tempnodearray.push_back(temporary);
 	}
+	
+	// Generate the path
 	std::vector<NODE> path = pathfinder->GeneratePath(start_position, end_position, tempnodearray);
+	
+	// Delete the pathfinder
+	delete pathfinder;
 ~~~~
 
-Your state manager will have to be configured to be able to switch the active path find module. You will also have to discretise your map into a nodemap (two-dimensional vector of NODE*).
+Your state manager will have to be configured to be able to switch the active path find module. You will need to discretise your map into a nodemap (two-dimensional vector of NODE*), like in the example above.
