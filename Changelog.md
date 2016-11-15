@@ -1,6 +1,10 @@
 #ModularPathFinding Changelog
 ##NOTE: I hardly ever remember what I add per version, so beware of inaccuracies
 
+#### v0.7.0
+- Fixed discrepancies with Breadth-First and Depth-First
+- Added Doxygen documentation
+
 #### v0.6.0
 - Added AStar Epsilon
 	+ Does not yet support configurable secondary heuristics

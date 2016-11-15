@@ -3,15 +3,15 @@
 
 std::vector<NODE> PathAlgorithms::DepthFirst::GeneratePath(glm::ivec2 _start, glm::ivec2 _goal, std::vector<std::vector<NODE*>> _map, bool _allowDiagonal)
 {
-	std::queue<NODE*> Q;
+	std::stack<NODE*> S;
 	std::vector<NODE*> closed_list;
 	std::vector<NODE*> index;
-	Q.push(new NODE(_start, false));
+	S.push(new NODE(_start, false));
 
-	while (Q.size() != 0)
+	while (S.size() != 0)
 	{
-		NODE* current = Q.front();
-		Q.pop();
+		NODE* current = S.top();
+		S.pop();
 
 		if (current->pos == _goal)
 		{
@@ -37,7 +37,7 @@ std::vector<NODE> PathAlgorithms::DepthFirst::GeneratePath(glm::ivec2 _start, gl
 						}
 						else
 						{
-							Q.push(node);
+							S.push(node);
 						}
 					}
 					else

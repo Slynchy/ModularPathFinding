@@ -1,3 +1,9 @@
+/// \file 		Dijkstra.h
+/// \author 	Sam Lynch
+/// \details	Header file for Dijkstra's algorithm
+/// \deprecated	Never actually been made!
+/// \date 		October 2016
+
 #pragma once
 
 #include <vector>

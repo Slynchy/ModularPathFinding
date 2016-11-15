@@ -1,3 +1,8 @@
+/// \file 		BreadthFirst.h
+/// \author 	Sam Lynch
+/// \details 	Header file for the BreadthFirst algorithm
+/// \date 		November 2016
+
 #pragma once
 
 #include <vector>

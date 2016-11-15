@@ -1,3 +1,8 @@
+/// \file 		AStar.h
+/// \author 	Sam Lynch
+/// \details 	Header file for the AStarEpsilon algorithm
+/// \date 		November 2016
+
 #pragma once
 
 #include <vector>

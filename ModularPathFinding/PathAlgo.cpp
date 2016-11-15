@@ -3,7 +3,7 @@
 
 PathAlgorithm::~PathAlgorithm()
 {
-	//path.clear();
+
 }
 
 NODE* PathAlgorithm::PositionExistsInMap(PathAlgorithm::OpenList& m, NODE* _node)

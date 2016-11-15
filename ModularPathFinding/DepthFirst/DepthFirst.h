@@ -1,3 +1,8 @@
+/// \file 		DepthFirst.h
+/// \author 	Sam Lynch
+/// \details 	Header file for the DepthFirst algorithm
+/// \date 		November 2016
+
 #pragma once
 
 #include <vector>
