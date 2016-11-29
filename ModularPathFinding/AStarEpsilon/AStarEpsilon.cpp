@@ -113,11 +113,11 @@ std::vector<NODE> PathAlgorithms::AStarEpsilon::GeneratePath(glm::ivec2 _start, 
 		}
 		else
 		{
-			std::vector<NODE*> neighbours = GetNeighbors(current, &_map, _allowDiagonal);
-			for each (NODE* var in neighbours)
-			{
-				index.push_back(var);
-			}
+			std::vector<NODE*> neighbours = GetNeighbors(current, &_map, _allowDiagonal, index);
+			//for each (NODE* var in neighbours)
+			//{
+			//	index.push_back(var);
+			//}
 
 			for each (NODE* var in neighbours)
 			{

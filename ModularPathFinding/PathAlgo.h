@@ -36,7 +36,7 @@ protected:
 	/// \param start The NODE to get neighbours for
 	/// \param _nmap The node map (not required, can just pass a basic constructor)
 	/// \param _allowDiagonal Generate the diagonal neighbours if true
-	virtual std::vector<NODE*> GetNeighbors(NODE* start, std::vector<std::vector<NODE*>>* _nmap, bool _allowDiagonal);
+	virtual std::vector<NODE*> GetNeighbors(NODE* start, std::vector<std::vector<NODE*>>* _nmap, bool _allowDiagonal, std::vector<NODE*>& _index = std::vector<NODE*>());
 
 	/// Cleans up the algorith and returns the path
 	/// \param current The final node with which to generate the path

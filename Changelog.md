@@ -1,6 +1,9 @@
 #ModularPathFinding Changelog
 ##NOTE: I hardly ever remember what I add per version, so beware of inaccuracies
 
+#### v0.7.1
+- Fixed some memory leaks
+
 #### v0.7.0
 - Fixed discrepancies with Breadth-First and Depth-First
 - Added Doxygen documentation
