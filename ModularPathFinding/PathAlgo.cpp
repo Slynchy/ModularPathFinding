@@ -20,7 +20,7 @@ NODE* PathAlgorithm::PositionExistsInMap(PathAlgorithm::OpenList& m, NODE* _node
 	return nullptr;
 };
 
-std::vector<NODE*> PathAlgorithm::GetNeighbors(NODE* start, std::vector<std::vector<NODE*>>* _nmap, bool _allowDiagonal, std::vector<NODE*>& _index)
+std::vector<NODE*> PathAlgorithm::GetNeighbors(NODE* start, std::vector<std::vector<NODE*>>* _nmap, bool _allowDiagonal)
 {
 	std::vector<NODE*> neighbours;
 	neighbours.push_back(new NODE(glm::ivec2(start->pos.x, start->pos.y + 1)));
@@ -35,23 +35,10 @@ std::vector<NODE*> PathAlgorithm::GetNeighbors(NODE* start, std::vector<std::vec
 		neighbours.push_back(new NODE(glm::ivec2(start->pos.x + 1, start->pos.y - 1)));
 		neighbours.push_back(new NODE(glm::ivec2(start->pos.x - 1, start->pos.y + 1)));
 	}
-
-	if (_index.size() == 0)
+	for each (NODE* _node in neighbours)
 	{
-		for each (NODE* _node in neighbours)
-		{
-			//_node->g = start->g + 1;
-			_node->parent = start;
-		}
-	}
-	else
-	{
-		for each (NODE* _node in neighbours)
-		{
-			//_node->g = start->g + 1;
-			_node->parent = start;
-			_index.push_back(_node);
-		}
+		//_node->g = start->g + 1;
+		_node->parent = start;
 	}
 
 	return neighbours;

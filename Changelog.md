@@ -1,5 +1,9 @@
 #ModularPathFinding Changelog
-##NOTE: I hardly ever remember what I add per version, so beware of inaccuracies
+##NOTE: I hardly ever remember what I add per version, so beware of 
+
+#### v0.7.4
+- Added Djikstras 
+- Updated other things; I actually forgot to update the Git repo a while back!
 
 #### v0.7.1
 - Fixed some memory leaks
